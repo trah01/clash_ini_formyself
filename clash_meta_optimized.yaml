@@ -1,0 +1,690 @@
+# Clash Meta 优化配置
+# 专为大陆用户优化，解决CS延迟问题，独立AI平台分流
+# 基于 ACL4SSR 规则制作
+
+port: 7890
+socks-port: 7891
+redir-port: 7892
+mixed-port: 7893
+allow-lan: true
+bind-address: '*'
+mode: rule
+log-level: info
+ipv6: false
+external-controller: 127.0.0.1:9090
+external-ui: ui
+secret: ''
+
+dns:
+  enable: true
+  ipv6: false
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  use-hosts: true
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  fallback:
+    - https://1.1.1.1/dns-query
+    - https://dns.google/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    domain:
+      - '+.google.com'
+      - '+.facebook.com'
+      - '+.youtube.com'
+    ipcidr:
+      - 240.0.0.0/4
+
+# 代理组配置
+proxy-groups:
+  # 主要分组
+  - name: "🚀 节点选择"
+    type: select
+    proxies:
+      - "♻️ 自动选择"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "🚀 手动切换"
+    type: select
+    use:
+      - default
+
+  - name: "♻️ 自动选择"
+    type: url-test
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 100
+
+  # AI平台专线 - 独立配置
+  - name: "🤖 Claude专线"
+    type: select
+    proxies:
+      - "🇺🇲 美国节点"
+      - "🇸🇬 狮城节点"
+      - "♻️ AI专用"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "💬 ChatGPT专线"
+    type: select
+    proxies:
+      - "🇺🇲 美国节点"
+      - "♻️ AI专用"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "🔷 Gemini专线"
+    type: select
+    proxies:
+      - "🇺🇲 美国节点"
+      - "♻️ AI专用"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "♻️ AI专用"
+    type: url-test
+    filter: "(?i)(us|usa|united|america|american|sg|singapore|ai)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 80
+
+  # 游戏优化分组
+  - name: "🎮 CS游戏优化"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🎮 低延迟"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+
+  - name: "🎮 Steam商店"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "DIRECT"
+
+  - name: "🎮 其他游戏"
+    type: select
+    proxies:
+      - "🎮 低延迟"
+      - "🚀 节点选择"
+      - "DIRECT"
+      - "🇺🇲 美国节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+
+  - name: "🎮 低延迟"
+    type: url-test
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 300
+    tolerance: 80
+
+  # 通讯和媒体
+  - name: "📲 电报消息"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "🇸🇬 狮城节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "📹 油管视频"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "🇸🇬 狮城节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "🎥 奈飞视频"
+    type: select
+    proxies:
+      - "🎥 奈飞节点"
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "🇸🇬 狮城节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "📺 哔哩哔哩"
+    type: select
+    proxies:
+      - "🎯 全球直连"
+      - "🇨🇳 台湾节点"
+      - "🇭🇰 香港节点"
+
+  - name: "🌍 国外媒体"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+      - "DIRECT"
+
+  - name: "🌏 国内媒体"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🚀 手动切换"
+
+  # 谷歌和微软服务
+  - name: "📢 谷歌FCM"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "🇺🇲 美国节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+
+  - name: "Ⓜ️ 微软Bing"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "🇺🇲 美国节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+
+  - name: "Ⓜ️ 微软云盘"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "🇺🇲 美国节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+
+  - name: "Ⓜ️ 微软服务"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "🇺🇲 美国节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+
+  - name: "🍎 苹果服务"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "🇺🇲 美国节点"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+
+  # 音乐服务
+  - name: "🎶 网易音乐"
+    type: select
+    filter: "(?i)(网易|音乐|解锁|Music|NetEase)"
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+    use:
+      - default
+
+  # 系统分组
+  - name: "🎯 全球直连"
+    type: select
+    proxies:
+      - "DIRECT"
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+
+  - name: "🛑 广告拦截"
+    type: select
+    proxies:
+      - "REJECT"
+      - "DIRECT"
+
+  - name: "🐟 漏网之鱼"
+    type: select
+    proxies:
+      - "🚀 节点选择"
+      - "♻️ 自动选择"
+      - "DIRECT"
+      - "🇭🇰 香港节点"
+      - "🇨🇳 台湾节点"
+      - "🇸🇬 狮城节点"
+      - "🇯🇵 日本节点"
+      - "🇺🇲 美国节点"
+      - "🇰🇷 韩国节点"
+      - "🚀 手动切换"
+
+  # 地区节点组 - 优化延迟阈值
+  - name: "🇭🇰 香港节点"
+    type: url-test
+    filter: "(?i)(港|HK|hk|Hong Kong|HongKong|hongkong)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 80
+
+  - name: "🇯🇵 日本节点"
+    type: url-test
+    filter: "(?i)(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 80
+
+  - name: "🇺🇲 美国节点"
+    type: url-test
+    filter: "(?i)(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 120
+
+  - name: "🇨🇳 台湾节点"
+    type: url-test
+    filter: "(?i)(台|新北|彰化|TW|Taiwan)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 80
+
+  - name: "🇸🇬 狮城节点"
+    type: url-test
+    filter: "(?i)(新加坡|坡|狮城|SG|Singapore)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 80
+
+  - name: "🇰🇷 韩国节点"
+    type: url-test
+    filter: "(?i)(KR|Korea|KOR|首尔|韩|韓)"
+    use:
+      - default
+    url: "http://www.gstatic.com/generate_204"
+    interval: 600
+    tolerance: 80
+
+  - name: "🎥 奈飞节点"
+    type: select
+    filter: "(?i)(NF|奈飞|解锁|Netflix|NETFLIX|Media)"
+    use:
+      - default
+
+# 订阅提供者配置 (根据你的实际订阅链接替换)
+proxy-providers:
+  default:
+    type: http
+    url: "你的订阅链接"  # 请替换为你的实际订阅链接
+    interval: 3600
+    path: ./proxies.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: http://www.gstatic.com/generate_204
+
+# 规则提供者配置
+rule-providers:
+  LocalAreaNetwork:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    path: ./ruleset/LocalAreaNetwork.yaml
+    interval: 86400
+
+  UnBan:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
+    path: ./ruleset/UnBan.yaml
+    interval: 86400
+
+  BanAD:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
+    path: ./ruleset/BanAD.yaml
+    interval: 86400
+
+  BanProgramAD:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
+    path: ./ruleset/BanProgramAD.yaml
+    interval: 86400
+
+  BanEasyList:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanEasyList.list"
+    path: ./ruleset/BanEasyList.yaml
+    interval: 86400
+
+  SteamCN:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
+    path: ./ruleset/SteamCN.yaml
+    interval: 86400
+
+  GoogleFCM:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/GoogleFCM.list"
+    path: ./ruleset/GoogleFCM.yaml
+    interval: 86400
+
+  GoogleCN:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
+    path: ./ruleset/GoogleCN.yaml
+    interval: 86400
+
+  Bing:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Bing.list"
+    path: ./ruleset/Bing.yaml
+    interval: 86400
+
+  OneDrive:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list"
+    path: ./ruleset/OneDrive.yaml
+    interval: 86400
+
+  Microsoft:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
+    path: ./ruleset/Microsoft.yaml
+    interval: 86400
+
+  Apple:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
+    path: ./ruleset/Apple.yaml
+    interval: 86400
+
+  Telegram:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Telegram.list"
+    path: ./ruleset/Telegram.yaml
+    interval: 86400
+
+  Claude:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Claude.list"
+    path: ./ruleset/Claude.yaml
+    interval: 86400
+
+  OpenAi:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/OpenAi.list"
+    path: ./ruleset/OpenAi.yaml
+    interval: 86400
+
+  Gemini:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Gemini.list"
+    path: ./ruleset/Gemini.yaml
+    interval: 86400
+
+  NetEaseMusic:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/NetEaseMusic.list"
+    path: ./ruleset/NetEaseMusic.yaml
+    interval: 86400
+
+  Steam:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Steam.list"
+    path: ./ruleset/Steam.yaml
+    interval: 86400
+
+  Epic:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Epic.list"
+    path: ./ruleset/Epic.yaml
+    interval: 86400
+
+  Origin:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Origin.list"
+    path: ./ruleset/Origin.yaml
+    interval: 86400
+
+  Sony:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Sony.list"
+    path: ./ruleset/Sony.yaml
+    interval: 86400
+
+  Nintendo:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Nintendo.list"
+    path: ./ruleset/Nintendo.yaml
+    interval: 86400
+
+  YouTube:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/YouTube.list"
+    path: ./ruleset/YouTube.yaml
+    interval: 86400
+
+  Netflix:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Netflix.list"
+    path: ./ruleset/Netflix.yaml
+    interval: 86400
+
+  BilibiliHMT:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/BilibiliHMT.list"
+    path: ./ruleset/BilibiliHMT.yaml
+    interval: 86400
+
+  Bilibili:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bilibili.list"
+    path: ./ruleset/Bilibili.yaml
+    interval: 86400
+
+  ChinaMedia:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
+    path: ./ruleset/ChinaMedia.yaml
+    interval: 86400
+
+  ProxyMedia:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list"
+    path: ./ruleset/ProxyMedia.yaml
+    interval: 86400
+
+  ProxyGFWlist:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list"
+    path: ./ruleset/ProxyGFWlist.yaml
+    interval: 86400
+
+  ChinaDomain:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+    path: ./ruleset/ChinaDomain.yaml
+    interval: 86400
+
+  ChinaCompanyIp:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
+    path: ./ruleset/ChinaCompanyIp.yaml
+    interval: 86400
+
+  Download:
+    type: http
+    behavior: classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Download.list"
+    path: ./ruleset/Download.yaml
+    interval: 86400
+
+# 分流规则 - 按优化后的优先级排序
+rules:
+  # 1. 本地网络和解封 (最高优先级)
+  - RULE-SET,LocalAreaNetwork,🎯 全球直连
+  - RULE-SET,UnBan,🎯 全球直连
+
+  # 2. 广告拦截
+  - RULE-SET,BanAD,🛑 广告拦截
+  - RULE-SET,BanProgramAD,🛑 广告拦截
+  - RULE-SET,BanEasyList,🛑 广告拦截
+
+  # 3. CS游戏优化 (新增，高优先级)
+  - RULE-SET,SteamCN,🎮 CS游戏优化
+  - DOMAIN,csgo.wmsj.cn,🎮 CS游戏优化
+  - DOMAIN,dota2.wmsj.cn,🎮 CS游戏优化
+  - DOMAIN-SUFFIX,steamchina.com,🎮 CS游戏优化
+  - DOMAIN-SUFFIX,steamcontent.com,🎮 CS游戏优化
+
+  # 4. Google FCM 和 Google CN
+  - RULE-SET,GoogleFCM,📢 谷歌FCM
+  - RULE-SET,GoogleCN,🎯 全球直连
+
+  # 5. 微软和苹果服务
+  - RULE-SET,Bing,Ⓜ️ 微软Bing
+  - RULE-SET,OneDrive,Ⓜ️ 微软云盘
+  - RULE-SET,Microsoft,Ⓜ️ 微软服务
+  - RULE-SET,Apple,🍎 苹果服务
+
+  # 6. 电报通讯
+  - RULE-SET,Telegram,📲 电报消息
+
+  # 7. AI平台独立分流 (新增)
+  - RULE-SET,Claude,🤖 Claude专线
+  - RULE-SET,OpenAi,💬 ChatGPT专线
+  - RULE-SET,Gemini,🔷 Gemini专线
+
+  # 8. 网易音乐
+  - RULE-SET,NetEaseMusic,🎶 网易音乐
+
+  # 9. 游戏平台分流 (细化)
+  - RULE-SET,Steam,🎮 Steam商店
+  - RULE-SET,Epic,🎮 其他游戏
+  - RULE-SET,Origin,🎮 其他游戏
+  - RULE-SET,Sony,🎮 其他游戏
+  - RULE-SET,Nintendo,🎮 其他游戏
+
+  # 10. 媒体服务
+  - RULE-SET,YouTube,📹 油管视频
+  - RULE-SET,Netflix,🎥 奈飞视频
+  - RULE-SET,BilibiliHMT,📺 哔哩哔哩
+  - RULE-SET,Bilibili,📺 哔哩哔哩
+  - RULE-SET,ChinaMedia,🌏 国内媒体
+  - RULE-SET,ProxyMedia,🌍 国外媒体
+
+  # 11. 代理规则
+  - RULE-SET,ProxyGFWlist,🚀 节点选择
+
+  # 12. 国内直连
+  - RULE-SET,ChinaDomain,🎯 全球直连
+  - RULE-SET,ChinaCompanyIp,🎯 全球直连
+  - RULE-SET,Download,🎯 全球直连
+  - GEOIP,CN,🎯 全球直连
+
+  # 13. 兜底规则
+  - MATCH,🐟 漏网之鱼
