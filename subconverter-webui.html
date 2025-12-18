@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subconverter WebUI</title>
+    <!-- 引入更加现代的英文字体 Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 现代深色主题配色 */
+            --primary-color: #6366f1;
+            /* Indigo-500 */
+            --primary-hover: #4f46e5;
+            /* Indigo-600 */
+            --bg-color: #0f172a;
+            /* Slate-900 */
+            --card-bg: rgba(30, 41, 59, 0.7);
+            /* Slate-800 with opacity */
+            --input-bg: rgba(15, 23, 42, 0.6);
+            /* Slate-900 with opacity */
+            --text-main: #f8fafc;
+            /* Slate-50 */
+            --text-sub: #94a3b8;
+            /* Slate-400 */
+            --border-color: rgba(148, 163, 184, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            /* 添加更加细腻的背景光效 */
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            /* 毛玻璃效果 */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-sub);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.6;
+        }
+
+        /* 自定义滚动条 */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background-color: rgba(148, 163, 184, 0.2);
+            border-radius: 4px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-main);
+            flex: 0 0 auto;
+            width: 120px;
+            /* 固定重置按钮宽度 */
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.2);
+        }
+
+        .result-area {
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+            display: none;
+            /* 默认隐藏 */
+        }
+
+        .result-area.active {
+            display: block;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box-container {
+            position: relative;
+        }
+
+        .result-box {
+            background: #0b1120;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            padding-right: 80px;
+            /* 为复制按钮留出空间 */
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 13px;
+            color: #e2e8f0;
+            word-break: break-all;
+            line-height: 1.6;
+            margin-top: 10px;
+            min-height: 56px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 16px;
+            /* align with box top padding */
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .preset-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 6px 12px;
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-sub);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+
+        .tag:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        /* 简单的 Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Subconverter WebUI</h1>
+            <p class="subtitle">简单、快速的订阅转换工具</p>
+        </header>
+
+        <div class="card">
+            <div class="form-group">
+                <label>订阅链接</label>
+                <textarea id="subUrl" placeholder="粘贴您的订阅链接，多个链接请用 | 分隔"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label>后端地址</label>
+                    <input type="text" id="backend" value="https://sub.trah.cn">
+                </div>
+                <div class="form-group">
+                    <label>目标客户端</label>
+                    <select id="target">
+                        <option value="clash">Clash</option>
+                        <option value="clashr">ClashR</option>
+                        <option value="surge&ver=4">Surge 4</option>
+                        <option value="quanx">Quantumult X</option>
+                        <option value="loon">Loon</option>
+                        <option value="surfboard">Surfboard</option>
+                        <option value="v2ray">V2Ray</option>
+                        <option value="mixed">混合订阅</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>自定义配置 (Remote Config)</label>
+                <input type="text" id="configUrl" placeholder="输入远程配置 URL">
+                <div class="preset-tags">
+                    <!-- 个人自用自定义配置 -->
+                    <span class="tag"
+                        onclick="setConfig('https://git.trah.cn/trah01/clash_ini_formyself/raw/branch/main/clash.ini')">Clash优化版(自用)</span>
+                    <span class="tag"
+                        onclick="setConfig('https://git.trah.cn/trah01/clash_ini_formyself/raw/branch/main/clash_meta.ini')">ClashMeta版(自用)</span>
+                    <!-- ACL4SSR 系列 -->
+                    <span class="tag"
+                        onclick="setConfig('https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online.ini')">ACL4SSR
+                        默认版</span>
+                    <span class="tag"
+                        onclick="setConfig('https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full.ini')">ACL4SSR
+                        全分组</span>
+                    <span class="tag"
+                        onclick="setConfig('https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_NoAuto.ini')">ACL4SSR
+                        全分组无测速</span>
+                    <span class="tag"
+                        onclick="setConfig('https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Mini.ini')">ACL4SSR
+                        精简版</span>
+                    <span class="tag"
+                        onclick="setConfig('https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_AdblockPlus.ini')">ACL4SSR
+                        去广告加强</span>
+                    <span class="tag"
+                        onclick="setConfig('https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online_Full_Netflix.ini')">ACL4SSR
+                        Netflix分组</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>附加选项</label>
+                <select id="extra">
+                    <option value="">(默认) 无特殊设置</option>
+                    <option value="emoji=true">添加 Emoji</option>
+                    <option value="emoji=true&udp=true">Emoji + UDP</option>
+                    <option value="emoji=true&udp=true&scv=true">Emoji + UDP + 跳过证书验证</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="generateUrl()">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    生成订阅链接
+                </button>
+                <button class="btn btn-secondary" onclick="clearAll()">重置</button>
+            </div>
+
+            <div class="result-area" id="resultArea">
+                <label>转换结果</label>
+                <div class="result-box-container">
+                    <div class="result-box" id="resultUrl"></div>
+                    <button class="copy-btn" onclick="copyResult()">复制</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示容器 -->
+    <div class="toast" id="toast">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #4ade80;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toastMsg">操作成功</span>
+    </div>
+
+    <script>
+        function setConfig(url) {
+            document.getElementById('configUrl').value = url;
+            // 点击预设后给个视觉反馈
+            const input = document.getElementById('configUrl');
+            input.style.borderColor = '#6366f1';
+            setTimeout(() => { input.style.borderColor = ''; }, 300);
+        }
+
+        function generateUrl() {
+            const subUrl = document.getElementById('subUrl').value.trim();
+            const backend = document.getElementById('backend').value.trim();
+            const configUrl = document.getElementById('configUrl').value.trim();
+            const target = document.getElementById('target').value;
+            const extra = document.getElementById('extra').value;
+
+            if (!subUrl) {
+                showToast('❌ 请输入订阅链接');
+                return;
+            }
+
+            if (!backend) {
+                showToast('❌ 请输入后端地址');
+                return;
+            }
+
+            // 构建基础URL，处理末尾可能的斜杠
+            let url = `${backend.replace(/\/$/, '')}/sub?target=${target}`;
+
+            // 添加订阅链接
+            url += `&url=${encodeURIComponent(subUrl)}`;
+
+            // 添加配置
+            if (configUrl) {
+                url += `&config=${encodeURIComponent(configUrl)}`;
+            }
+
+            // 添加额外参数
+            if (extra) {
+                url += `&${extra}`;
+            }
+
+            // 显示结果
+            const resultArea = document.getElementById('resultArea');
+            const resultUrl = document.getElementById('resultUrl');
+
+            resultUrl.textContent = url;
+            resultArea.classList.add('active');
+
+            // 平滑滚动到结果区域
+            setTimeout(() => {
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        function copyResult() {
+            const text = document.getElementById('resultUrl').textContent;
+            if (text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ 已复制到剪贴板');
+                }).catch(() => {
+                    // 兼容性处理
+                    try {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        showToast('✅ 已复制到剪贴板');
+                    } catch (e) {
+                        showToast('❌ 复制失败，请手动复制');
+                    }
+                });
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('subUrl').value = '';
+            document.getElementById('configUrl').value = '';
+            document.getElementById('resultArea').classList.remove('active');
+            showToast('🔄 已重置表单');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toastMsg');
+            const icon = toast.querySelector('svg');
+
+            // 更新文字
+            msg.innerText = message.replace(/^[✅❌🔄]\s/, '');
+
+            // 根据类型更新图标颜色和形状
+            if (message.includes('❌')) {
+                icon.style.color = '#f87171'; // Red
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+            } else if (message.includes('🔄')) {
+                icon.style.color = '#60a5fa'; // Blue
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />';
+            } else {
+                icon.style.color = '#4ade80'; // Green
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />';
+            }
+
+            toast.classList.add('show');
+
+            // 清除之前的定时器（防止快速点击时 Toast 闪烁）
+            if (window.toastTimeout) clearTimeout(window.toastTimeout);
+
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>
